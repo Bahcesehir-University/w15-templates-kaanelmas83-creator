@@ -1,166 +1,144 @@
 // ============================================================================
-//  Lab: C++ Templates  (STUDENT VERSION)
-//  Course: Object-Oriented Programming with C++
-//  Single file only. No headers. C++17.
-//
-//  Complete every TODO. Do NOT rename the functions/classes/methods,
-//  and do NOT change their signatures - the autograder depends on them.
+//  test.cpp  -  Catch2 tests for the Templates lab
+//  Groups are tagged [group1]..[group6] so they can be run independently:
+//      ./test_bin [group1]
+//  This enables per-section partial grading.
 // ============================================================================
 
-#include <iostream>
+#define CATCH_CONFIG_MAIN
+#include "catch_amalgamated.hpp"
+
+// Pull in the student's code. Rename their main so it does not clash with
+// Catch2's generated main().
+#define main student_main
+#include "MainProgram.cpp"
+#undef main
+
 #include <string>
-#include <vector>
 #include <stdexcept>
 
-// ================================
-// CLASS / TEMPLATE DEFINITIONS
-// ================================
-
-// ---- Group 1: Basic function template -------------------------------------
-// TODO 1: Write a function template maxValue that takes two values of the
-//         SAME type T and returns the larger one.
-template <typename T>
-T maxValue(T a, T b) {
-    // TODO 1: return the larger of a and b
-    return (a > b) ? a : b ; // <-- replace
+// ---------------------------------------------------------------------------
+// Group 1: Basic function template  ->  maxValue
+// ---------------------------------------------------------------------------
+TEST_CASE("Group 1 - maxValue basic", "[group1]") {
+    REQUIRE(maxValue(3, 7) == 7);
+    REQUIRE(maxValue(7, 3) == 7);
 }
 
-// ---- Group 2: Function template with multiple type parameters --------------
-// TODO 2: Write a function template addValues that takes two values which may
-//         be of DIFFERENT types (T1, T2) and returns their sum.
-//         The return type must follow the usual arithmetic rules
-//         (e.g. int + double -> double). Use a trailing return type
-//         with decltype.
-template <typename T1, typename T2>
-auto addValues(T1 a, T2 b) -> decltype(a + b) {
-    // TODO 2: return the sum of a and b
-    return a + b; // <-- replace
+TEST_CASE("Group 1 - maxValue with doubles", "[group1]") {
+    REQUIRE(maxValue(2.5, 1.5) == Catch::Approx(2.5));
+    REQUIRE(maxValue(1.5, 2.5) == Catch::Approx(2.5));
 }
 
-// ---- Group 3: Class template ----------------------------------------------
-// TODO 3: Complete the class template Pair that stores two values of types
-//         A and B. Implement the getters, setters, and swapValues().
-template <typename A, typename B>
-class Pair {
-private:
-    A first_;
-    B second_;
-public:
-    // TODO 3a: constructor that initializes first_ and second_
-    Pair(A first, B second) : first_(first),second_(second) {}
-        // replace with member initialization
-
-    // TODO 3b: getters (const)
-    A getFirst() const  { return first_; }   // <-- replace
-    B getSecond() const { return second_; }   // <-- replace
-
-    // TODO 3c: setters
-    void setFirst(A value)  { first_ = value; }           // <-- replace
-    void setSecond(B value) { second_ = value; }           // <-- replace
-
-    // TODO 3d: swapValues - swap first_ and second_ (assume A == B when called)
-    void swapValues() {
-        // replace
-        A temp= first_;
-        first_ = static_cast<A>(second_);
-        second_ = static_cast<B>(temp);
-    }
-};
-
-// ---- Group 4: Generic container -------------------------------------------
-// TODO 4: Complete the class template Box, a generic dynamic container that
-//         stores elements of type T inside a std::vector<T>.
-template <typename T>
-class Box {
-private:
-    std::vector<T> items_;
-public:
-    // TODO 4a: add an item to the back
-    void add(const T& item) {items_.push_back(item); }
-
-    // TODO 4b: return number of stored items as int
-    int size() const { return static_cast<int>(items_.size()); }        // <-- replace
-
-    // TODO 4c: return the item at index; throw std::out_of_range if invalid
-    T get(int index) const {
-        if(index<0 || index >= items_.size()){
-            throw  std::out_of_range("Box index out of range");
-        }
-        return items_[index]; // <-- replace
-    }
-
-    // TODO 4d: return the sum of all stored elements
-    T total() const {
-        T sum = T();
-        for(const T& v : items_){
-            sum += v;
-        }
-        
-        return sum; // <-- replace
-    }
-};
-
-// ---- Group 5: Template specialization -------------------------------------
-// TODO 5a: Generic describe() - return 1 for any non-string type.
-template <typename T>
-int describe(const T& value) {
-    return 1; // <-- replace with 1
+TEST_CASE("Group 1 - maxValue equal values", "[group1]") {
+    REQUIRE(maxValue(5, 5) == 5);
 }
 
-// TODO 5b: Full specialization of describe for std::string.
-//          It must return 2 + the length of the string.
-//          Write the specialization below (template<> int describe<std::string>...).
-//
-//          <-- write your specialization here
-template <>
-int describe<std::string>(const std::string& value){
-    return 2 + static_cast<int>(value.size());
+// ---------------------------------------------------------------------------
+// Group 2: Multiple type parameters  ->  addValues
+// ---------------------------------------------------------------------------
+TEST_CASE("Group 2 - addValues same type", "[group2]") {
+    REQUIRE(addValues(2, 3) == 5);
 }
-// ---- Group 6: Non-type template parameter ---------------------------------
-// TODO 6: Complete FixedArray<T, N>, a stack array of compile-time size N.
-template <typename T, int N>
-class FixedArray {
-private:
-    T data_[N];
-public:
-    // TODO 6a: default-construct all N elements to T()
-    FixedArray() {
-        for(int i = 0 ; i < N ; i++){
-            data_[i] = T();
-        }
-        // replace
-    }
 
-    // TODO 6b: return N
-    int capacity() const { return N; }    // <-- replace
+TEST_CASE("Group 2 - addValues mixed types promotes to double", "[group2]") {
+    REQUIRE(addValues(2, 3.5) == Catch::Approx(5.5));
+    REQUIRE(addValues(1.25, 2) == Catch::Approx(3.25));
+}
 
-    // TODO 6c: set data_[index]; throw std::out_of_range if invalid
-    void set(int index, const T& value) {
-        // replace
-        if(index < 0 || index >= N){
-            throw std::out_of_range("FixedArray index out of range");
-        }
-        data_[index] = value;
-    }
+TEST_CASE("Group 2 - addValues negative", "[group2]") {
+    REQUIRE(addValues(-4, 4) == 0);
+}
 
-    // TODO 6d: return data_[index]; throw std::out_of_range if invalid
-    T at(int index) const {
-        if(index < 0 || index >= N){
-            throw std::out_of_range("FixedArray index out of range");
-        }
-        return data_[index]; // <-- replace
-    }
-};
+// ---------------------------------------------------------------------------
+// Group 3: Class template  ->  Pair
+// ---------------------------------------------------------------------------
+TEST_CASE("Group 3 - Pair getters", "[group3]") {
+    Pair<int, double> p(7, 2.5);
+    REQUIRE(p.getFirst() == 7);
+    REQUIRE(p.getSecond() == Catch::Approx(2.5));
+}
 
-// ================================
-// FUNCTION IMPLEMENTATIONS / main
-// ================================
+TEST_CASE("Group 3 - Pair setters", "[group3]") {
+    Pair<int, int> p(1, 2);
+    p.setFirst(10);
+    p.setSecond(20);
+    REQUIRE(p.getFirst() == 10);
+    REQUIRE(p.getSecond() == 20);
+}
 
-int main() {
-    std::cout << "=== C++ Templates Lab ===\n";
+TEST_CASE("Group 3 - Pair swapValues same type", "[group3]") {
+    Pair<int, int> p(1, 2);
+    p.swapValues();
+    REQUIRE(p.getFirst() == 2);
+    REQUIRE(p.getSecond() == 1);
+}
 
-    // You may add your own test calls here to experiment.
-    std::cout << "maxValue(3, 7) = " << maxValue(3, 7) << "\n";
+// ---------------------------------------------------------------------------
+// Group 4: Generic container  ->  Box
+// ---------------------------------------------------------------------------
+TEST_CASE("Group 4 - Box add and size", "[group4]") {
+    Box<int> b;
+    REQUIRE(b.size() == 0);
+    b.add(1); b.add(2);
+    REQUIRE(b.size() == 2);
+}
 
-    return 0;
+TEST_CASE("Group 4 - Box get and total", "[group4]") {
+    Box<int> b;
+    b.add(10); b.add(20); b.add(30);
+    REQUIRE(b.get(0) == 10);
+    REQUIRE(b.get(2) == 30);
+    REQUIRE(b.total() == 60);
+}
+
+TEST_CASE("Group 4 - Box out of range throws", "[group4]") {
+    Box<int> b;
+    b.add(5);
+    REQUIRE_THROWS_AS(b.get(3), std::out_of_range);
+}
+
+TEST_CASE("Group 4 - Box works with double", "[group4]") {
+    Box<double> b;
+    b.add(1.5); b.add(2.5);
+    REQUIRE(b.total() == Catch::Approx(4.0));
+}
+
+// ---------------------------------------------------------------------------
+// Group 5: Template specialization  ->  describe
+// ---------------------------------------------------------------------------
+TEST_CASE("Group 5 - describe generic returns 1", "[group5]") {
+    REQUIRE(describe(42) == 1);
+    REQUIRE(describe(3.14) == 1);
+}
+
+TEST_CASE("Group 5 - describe string specialization", "[group5]") {
+    REQUIRE(describe(std::string("hi")) == 4);   // 2 + length(2)
+    REQUIRE(describe(std::string("")) == 2);      // 2 + length(0)
+}
+
+// ---------------------------------------------------------------------------
+// Group 6: Non-type template parameter  ->  FixedArray
+// ---------------------------------------------------------------------------
+TEST_CASE("Group 6 - FixedArray capacity", "[group6]") {
+    FixedArray<int, 4> fa;
+    REQUIRE(fa.capacity() == 4);
+}
+
+TEST_CASE("Group 6 - FixedArray default initialized", "[group6]") {
+    FixedArray<int, 3> fa;
+    REQUIRE(fa.at(0) == 0);
+    REQUIRE(fa.at(2) == 0);
+}
+
+TEST_CASE("Group 6 - FixedArray set and at", "[group6]") {
+    FixedArray<int, 3> fa;
+    fa.set(1, 99);
+    REQUIRE(fa.at(1) == 99);
+}
+
+TEST_CASE("Group 6 - FixedArray out of range throws", "[group6]") {
+    FixedArray<int, 2> fa;
+    REQUIRE_THROWS_AS(fa.set(5, 1), std::out_of_range);
+    REQUIRE_THROWS_AS(fa.at(-1), std::out_of_range);
 }
