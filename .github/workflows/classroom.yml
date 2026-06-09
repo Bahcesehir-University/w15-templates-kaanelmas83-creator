@@ -1,0 +1,80 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: 'Group 1: maxValue'
+      id: group-1-maxvalue
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: 'Group 1: maxValue'
+        setup-command: ''
+        command: make test_1
+        timeout: 10
+        max-score: 15
+    - name: 'Group 2: addValues'
+      id: group-2-addvalues
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: 'Group 2: addValues'
+        setup-command: ''
+        command: make test_2
+        timeout: 10
+        max-score: 15
+    - name: 'Group 3: Pair'
+      id: group-3-pair
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: 'Group 3: Pair'
+        setup-command: ''
+        command: 'make test_3 '
+        timeout: 10
+        max-score: 15
+    - name: 'Group 4: Box'
+      id: group-4-box
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: 'Group 4: Box'
+        setup-command: ''
+        command: make test_4
+        timeout: 10
+        max-score: 15
+    - name: 'Group 5: describe'
+      id: group-5-describe
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: 'Group 5: describe'
+        setup-command: ''
+        command: make test_5
+        timeout: 10
+        max-score: 20
+    - name: 'Group 6: FixedArray'
+      id: group-6-fixedarray
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: 'Group 6: FixedArray'
+        setup-command: ''
+        command: make test_6
+        timeout: 10
+        max-score: 20
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        GROUP-1-MAXVALUE_RESULTS: "${{steps.group-1-maxvalue.outputs.result}}"
+        GROUP-2-ADDVALUES_RESULTS: "${{steps.group-2-addvalues.outputs.result}}"
+        GROUP-3-PAIR_RESULTS: "${{steps.group-3-pair.outputs.result}}"
+        GROUP-4-BOX_RESULTS: "${{steps.group-4-box.outputs.result}}"
+        GROUP-5-DESCRIBE_RESULTS: "${{steps.group-5-describe.outputs.result}}"
+        GROUP-6-FIXEDARRAY_RESULTS: "${{steps.group-6-fixedarray.outputs.result}}"
+      with:
+        runners: group-1-maxvalue,group-2-addvalues,group-3-pair,group-4-box,group-5-describe,group-6-fixedarray
